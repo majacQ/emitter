@@ -38,6 +38,21 @@ describe('Emitter', function(){
       calls.should.eql([ 'one', 1, 'two', 1, 'one', 2, 'two', 2 ]);
     })
 
+  <<<<<<< add/handles
+    it('should return a subscription', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      var foo = emitter.on('foo', function(){
+        calls.push('foo');
+      });
+
+      emitter.emit('foo');
+      foo.cancel();
+      emitter.emit('foo');
+
+      calls.should.eql(['foo']);
+  =======
     it('should add listeners for events which are same names with methods of Object.prototype', function(){
       var emitter = new Emitter;
       var calls = [];
@@ -54,6 +69,7 @@ describe('Emitter', function(){
       emitter.emit('__proto__', 2);
 
       calls.should.eql([ 'one', 1, 'two', 2 ]);
+  >>>>>>> master
     })
   })
 
@@ -72,6 +88,20 @@ describe('Emitter', function(){
       emitter.emit('bar', 1);
 
       calls.should.eql([ 'one', 1 ]);
+    })
+
+    it('should return a subscription', function(){
+      var emitter = new Emitter;
+      var calls = [];
+      
+      var foo = emitter.on('foo', function(){
+        calls.push('foo');
+      });
+      
+      foo.cancel();
+      emitter.emit('foo');
+      
+      calls.should.eql([]);
     })
   })
 
