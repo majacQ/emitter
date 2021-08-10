@@ -38,6 +38,7 @@ describe('Emitter', function(){
       calls.should.eql([ 'one', 1, 'two', 1, 'one', 2, 'two', 2 ]);
     })
 
+  <<<<<<< add/handles
     it('should return a subscription', function(){
       var emitter = new Emitter;
       var calls = [];
@@ -51,6 +52,24 @@ describe('Emitter', function(){
       emitter.emit('foo');
 
       calls.should.eql(['foo']);
+  =======
+    it('should add listeners for events which are same names with methods of Object.prototype', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      emitter.on('constructor', function(val){
+        calls.push('one', val);
+      });
+
+      emitter.on('__proto__', function(val){
+        calls.push('two', val);
+      });
+
+      emitter.emit('constructor', 1);
+      emitter.emit('__proto__', 2);
+
+      calls.should.eql([ 'one', 1, 'two', 2 ]);
+  >>>>>>> master
     })
   })
 
@@ -58,16 +77,16 @@ describe('Emitter', function(){
     it('should add a single-shot listener', function(){
       var emitter = new Emitter;
       var calls = [];
-  
+
       emitter.once('foo', function(val){
         calls.push('one', val);
       });
-  
+
       emitter.emit('foo', 1);
       emitter.emit('foo', 2);
       emitter.emit('foo', 3);
       emitter.emit('bar', 1);
-  
+
       calls.should.eql([ 'one', 1 ]);
     })
 
@@ -110,6 +129,7 @@ describe('Emitter', function(){
       function one() { calls.push('one'); }
 
       emitter.once('foo', one);
+      emitter.once('fee', one);
       emitter.off('foo', one);
 
       emitter.emit('foo');
@@ -151,6 +171,55 @@ describe('Emitter', function(){
       emitter.emit('foo');
 
       calls.should.eql([]);
+    })
+
+    it('should remove event array to avoid memory leak', function() {
+      var emitter = new Emitter;
+      var calls = [];
+
+      function cb() {}
+
+      emitter.on('foo', cb);
+      emitter.off('foo', cb);
+
+      emitter._callbacks.should.not.have.property('$foo');
+    })
+
+    it('should only remove the event array when the last subscriber unsubscribes', function() {
+      var emitter = new Emitter;
+      var calls = [];
+
+      function cb1() {}
+      function cb2() {}
+
+      emitter.on('foo', cb1);
+      emitter.on('foo', cb2);
+      emitter.off('foo', cb1);
+
+      emitter._callbacks.should.have.property('$foo');
+    })
+  })
+
+  describe('.off()', function(){
+    it('should remove all listeners', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      function one() { calls.push('one'); }
+      function two() { calls.push('two'); }
+
+      emitter.on('foo', one);
+      emitter.on('bar', two);
+
+      emitter.emit('foo');
+      emitter.emit('bar');
+
+      emitter.off();
+
+      emitter.emit('foo');
+      emitter.emit('bar');
+
+      calls.should.eql(['one', 'two']);
     })
   })
 
